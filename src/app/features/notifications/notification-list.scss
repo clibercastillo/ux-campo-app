@@ -1,0 +1,28 @@
+.notif-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.notif-item {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+
+.notif-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.notif-body p {
+  margin: 0 0 4px;
+  color: var(--color-text);
+  font-size: 0.92rem;
+}
+
+.notif-meta {
+  font-size: 0.75rem;
+  color: var(--color-text-dim);
+  text-transform: capitalize;
+}

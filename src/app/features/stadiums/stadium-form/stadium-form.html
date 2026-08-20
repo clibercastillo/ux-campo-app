@@ -1,0 +1,62 @@
+<div class="page page-narrow">
+  <div class="page-header">
+    <div>
+      <h2>Nueva cancha</h2>
+      <p>Registra una cancha sintética disponible para reserva</p>
+    </div>
+    <a routerLink="/stadiums" class="btn btn-outline" style="text-decoration:none">Volver</a>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="card">
+    <div class="field">
+      <label>Nombre</label>
+      <input type="text" formControlName="name" placeholder="Cancha Central" />
+      @if (form.controls.name.invalid && form.controls.name.touched) {
+        <span class="error">Requerido</span>
+      }
+    </div>
+
+    <div class="field">
+      <label>Dirección</label>
+      <input type="text" formControlName="address" placeholder="Av. Principal 123" />
+      @if (form.controls.address.invalid && form.controls.address.touched) {
+        <span class="error">Requerido</span>
+      }
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Ciudad</label>
+        <input type="text" formControlName="city" placeholder="Lima" />
+        @if (form.controls.city.invalid && form.controls.city.touched) {
+          <span class="error">Requerido</span>
+        }
+      </div>
+
+      <div class="field">
+        <label>Tipo de campo</label>
+        <select formControlName="fieldType">
+          <option value="sintetico">Sintético</option>
+          <option value="grass">Grass natural</option>
+          <option value="indoor">Indoor</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Capacidad (personas)</label>
+        <input type="number" formControlName="capacity" min="1" />
+      </div>
+
+      <div class="field">
+        <label>Precio por hora (S/)</label>
+        <input type="number" formControlName="pricePerHour" min="1" />
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block" [disabled]="loading()">
+      {{ loading() ? 'Guardando...' : 'Guardar cancha' }}
+    </button>
+  </form>
+</div>

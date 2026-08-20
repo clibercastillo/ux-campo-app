@@ -1,0 +1,21 @@
+.page-narrow {
+  max-width: 560px;
+}
+
+.summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: var(--space-2) 0 var(--space-4);
+  background: var(--color-surface-2);
+
+  span {
+    color: var(--color-text-dim);
+    font-size: 0.85rem;
+  }
+
+  strong {
+    color: var(--color-primary);
+    font-size: 1.2rem;
+  }
+}

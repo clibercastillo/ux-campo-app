@@ -1,0 +1,37 @@
+.booking-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.booking-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.booking-top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: 4px;
+}
+
+.booking-info p {
+  margin: 0 0 4px;
+  font-size: 0.85rem;
+}
+
+.price {
+  color: var(--color-primary);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.booking-actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}

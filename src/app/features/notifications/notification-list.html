@@ -1,0 +1,28 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h2>Notificaciones</h2>
+      <p>Historial de avisos sobre tus reservas</p>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="empty-state">Cargando notificaciones...</div>
+  } @else if (notifications().length === 0) {
+    <div class="empty-state">
+      <p>No tienes notificaciones todavía.</p>
+    </div>
+  } @else {
+    <div class="notif-list">
+      @for (n of notifications(); track n.id) {
+        <div class="card notif-item">
+          <div class="notif-icon">🔔</div>
+          <div class="notif-body">
+            <p>{{ n.message }}</p>
+            <span class="notif-meta">{{ n.channel }} · {{ n.createdAt | date:'short' }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

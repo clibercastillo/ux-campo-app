@@ -1,0 +1,54 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h2>Mis reservas</h2>
+      <p>Gestiona el estado de tus reservas</p>
+    </div>
+    <a routerLink="/bookings/new" class="btn btn-primary" style="text-decoration:none">
+      + Nueva reserva
+    </a>
+  </div>
+
+  @if (loading()) {
+    <div class="empty-state">Cargando reservas...</div>
+  } @else if (bookings().length === 0) {
+    <div class="empty-state">
+      <p>Aún no tienes reservas.</p>
+      <a routerLink="/stadiums" class="btn btn-outline" style="text-decoration:none">Ver canchas</a>
+    </div>
+  } @else {
+    <div class="booking-list">
+      @for (b of bookings(); track b.id) {
+        <div class="card booking-item">
+          <div class="booking-info">
+            <div class="booking-top">
+              <strong>Reserva #{{ b.id }}</strong>
+              <span class="badge" [class]="statusClass(b.status)">{{ b.status }}</span>
+            </div>
+            <p>Cancha #{{ b.stadiumId }} · {{ b.bookingDate }} · {{ b.startTime.slice(0,5) }} - {{ b.endTime.slice(0,5) }}</p>
+            <span class="price">S/ {{ b.totalPrice }}</span>
+          </div>
+
+          <div class="booking-actions">
+            @if (b.status === 'PENDING') {
+              <button class="btn btn-primary btn-sm" [disabled]="actionLoadingId() === b.id" (click)="confirm(b)">
+                Confirmar
+              </button>
+              <button class="btn btn-danger btn-sm" [disabled]="actionLoadingId() === b.id" (click)="cancel(b)">
+                Cancelar
+              </button>
+            }
+            @if (b.status === 'CONFIRMED') {
+              <button class="btn btn-primary btn-sm" [disabled]="actionLoadingId() === b.id" (click)="complete(b)">
+                Completar
+              </button>
+              <button class="btn btn-danger btn-sm" [disabled]="actionLoadingId() === b.id" (click)="cancel(b)">
+                Cancelar
+              </button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

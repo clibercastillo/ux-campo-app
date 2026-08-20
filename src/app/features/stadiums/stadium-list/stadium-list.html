@@ -1,0 +1,49 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h2>Canchas disponibles</h2>
+      <p>Encuentra y reserva tu cancha sintética favorita</p>
+    </div>
+    <a routerLink="/stadiums/new" class="btn btn-primary" style="text-decoration:none">
+      + Nueva cancha
+    </a>
+  </div>
+
+  <div class="search-bar card">
+    <input
+      type="text"
+      placeholder="Buscar por ciudad (ej. Lima)"
+      [(ngModel)]="cityFilter"
+      (keyup.enter)="search()"
+    />
+    <button class="btn btn-outline" (click)="search()">Buscar</button>
+    <button class="btn btn-outline" (click)="cityFilter.set(''); load()">Limpiar</button>
+  </div>
+
+  @if (loading()) {
+    <div class="empty-state">Cargando canchas...</div>
+  } @else if (stadiums().length === 0) {
+    <div class="empty-state">
+      <p>No se encontraron canchas.</p>
+    </div>
+  } @else {
+    <div class="grid">
+      @for (s of stadiums(); track s.id) {
+        <div class="card stadium-card">
+          <div class="stadium-top">
+            <h3>{{ s.name }}</h3>
+            <span class="price">S/ {{ s.pricePerHour }}<small>/h</small></span>
+          </div>
+          <p class="stadium-address">{{ s.address }}, {{ s.city }}</p>
+          <div class="stadium-meta">
+            <span class="tag">{{ s.fieldType }}</span>
+            <span class="tag">{{ s.capacity }} personas</span>
+          </div>
+          <button class="btn btn-primary btn-block" (click)="goToBooking(s)">
+            Reservar
+          </button>
+        </div>
+      }
+    </div>
+  }
+</div>

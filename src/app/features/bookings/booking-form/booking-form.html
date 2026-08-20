@@ -1,0 +1,52 @@
+<div class="page page-narrow">
+  <div class="page-header">
+    <div>
+      <h2>Nueva reserva</h2>
+      <p>Elige cancha, fecha y horario</p>
+    </div>
+    <a routerLink="/bookings" class="btn btn-outline" style="text-decoration:none">Volver</a>
+  </div>
+
+  @if (loadingStadiums()) {
+    <div class="empty-state">Cargando canchas...</div>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="submit()" class="card">
+      <div class="field">
+        <label>Cancha</label>
+        <select formControlName="stadiumId" (change)="onStadiumChange()">
+          <option [value]="0" disabled>Selecciona una cancha</option>
+          @for (s of stadiums(); track s.id) {
+            <option [value]="s.id">{{ s.name }} — {{ s.city }} (S/ {{ s.pricePerHour }}/h)</option>
+          }
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Fecha</label>
+        <input type="date" formControlName="bookingDate" />
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Hora inicio</label>
+          <input type="time" formControlName="startTime" (change)="onStadiumChange()" />
+        </div>
+        <div class="field">
+          <label>Hora fin</label>
+          <input type="time" formControlName="endTime" (change)="onStadiumChange()" />
+        </div>
+      </div>
+
+      @if (selectedStadium()) {
+        <div class="summary card">
+          <span>Total estimado</span>
+          <strong>S/ {{ estimatedTotal() }}</strong>
+        </div>
+      }
+
+      <button type="submit" class="btn btn-primary btn-block" [disabled]="loading()">
+        {{ loading() ? 'Reservando...' : 'Confirmar reserva' }}
+      </button>
+    </form>
+  }
+</div>
