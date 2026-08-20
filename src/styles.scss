@@ -1,23 +1,43 @@
-// ===== Design tokens =====
+// =====================================================================
+// CampoApp — Design tokens
+// Dirección: reflectores nocturnos sobre cancha sintética.
+// No negro puro + verde neón (default genérico) — verde-turf oscuro
+// con acento "reflector" naranja, y estados con motivo de tarjeta arbitral.
+// =====================================================================
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
+
 :root {
-  --color-bg: #0f1115;
-  --color-surface: #171a21;
-  --color-surface-2: #1f232c;
-  --color-border: #2a2f3a;
-  --color-text: #eef0f4;
-  --color-text-dim: #9aa1ae;
-  --color-primary: #22c55e;
-  --color-primary-dark: #16a34a;
-  --color-primary-contrast: #05130a;
-  --color-danger: #ef4444;
-  --color-warning: #f59e0b;
-  --color-info: #3b82f6;
+  // ---- Superficies (verde-pasto oscuro, no gris/negro neutro) ----
+  --color-bg: #0d1a14;
+  --color-surface: #14261d;
+  --color-surface-2: #1c3327;
+  --color-border: #2c4938;
+  --color-border-strong: #3c6249;
+
+  // ---- Texto (tiza cálida, no blanco puro) ----
+  --color-text: #edefe6;
+  --color-text-dim: #9fb0a2;
+  --color-text-faint: #6e7f72;
+
+  // ---- Acento principal: reflector de estadio ----
+  --color-primary: #f2934a;
+  --color-primary-dark: #d97d33;
+  --color-primary-contrast: #1a0f05;
+
+  // ---- Estados con motivo de tarjeta arbitral ----
+  --color-success: #4caf6d;       // confirmada / completada — verde de cancha
+  --color-success-contrast: #0c2013;
+  --color-warning: #e8c93b;       // pendiente — tarjeta amarilla
+  --color-warning-contrast: #2b2405;
+  --color-danger: #e2564a;        // cancelada — tarjeta roja
+  --color-danger-contrast: #2b0d0a;
+  --color-info: #5b9bd5;          // informativo
 
   --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 20px;
 
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 10px 28px rgba(3, 8, 5, 0.45);
 
   --space-1: 4px;
   --space-2: 8px;
@@ -26,7 +46,8 @@
   --space-5: 24px;
   --space-6: 32px;
 
-  --font-sans: 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+  --font-display: 'Oswald', 'Arial Narrow', sans-serif;
+  --font-sans: 'Manrope', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
 }
 
 * {
@@ -41,7 +62,17 @@ body {
 body {
   margin: 0;
   font-family: var(--font-sans);
-  background: radial-gradient(circle at top left, #171c26 0%, var(--color-bg) 55%);
+  // Rayas de pasto cortado — muy sutiles, atmósfera de cancha sintética,
+  // no textura decorativa gratuita.
+  background:
+    repeating-linear-gradient(
+      115deg,
+      rgba(76, 175, 109, 0.035) 0px,
+      rgba(76, 175, 109, 0.035) 48px,
+      transparent 48px,
+      transparent 96px
+    ),
+    radial-gradient(circle at top left, #16281f 0%, var(--color-bg) 60%);
   color: var(--color-text);
   -webkit-font-smoothing: antialiased;
 }
@@ -53,13 +84,27 @@ a {
 
 h1, h2, h3, h4 {
   margin: 0 0 var(--space-2);
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
 }
+
+h1 { font-size: 1.7rem; }
+h2 { font-size: 1.35rem; }
+h3 { font-size: 1.05rem; }
 
 p {
   margin: 0 0 var(--space-3);
   color: var(--color-text-dim);
+  line-height: 1.5;
+}
+
+// ===== Números tipo marcador (precios, horas, totales) =====
+.scoreline {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
 }
 
 // ===== Layout helpers =====
@@ -75,7 +120,38 @@ p {
   justify-content: space-between;
   gap: var(--space-3);
   flex-wrap: wrap;
-  margin-bottom: var(--space-5);
+  margin-bottom: var(--space-4);
+
+  h2 { margin-bottom: 2px; }
+  p { margin-bottom: 0; }
+}
+
+// Línea de mitad de cancha: divisor de página con motivo de fútbol.
+// Estructura real: separa encabezado de contenido en toda la app.
+.halfway-line {
+  position: relative;
+  height: 1px;
+  margin: 0 0 var(--space-5);
+  background: repeating-linear-gradient(
+    90deg,
+    var(--color-border-strong) 0,
+    var(--color-border-strong) 7px,
+    transparent 7px,
+    transparent 15px
+  );
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    border: 1px solid var(--color-border-strong);
+    background: var(--color-bg);
+    transform: translateY(-50%);
+  }
 }
 
 .grid {
@@ -102,10 +178,11 @@ p {
   border: none;
   border-radius: var(--radius-sm);
   padding: 11px 18px;
+  font-family: var(--font-sans);
   font-size: 0.95rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: transform 0.15s ease, opacity 0.15s ease, background 0.15s ease;
+  transition: transform 0.15s ease, opacity 0.15s ease, background 0.15s ease, border-color 0.15s ease;
   white-space: nowrap;
 
   &:active {
@@ -115,12 +192,22 @@ p {
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    transform: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
   }
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+  background: var(--color-primary);
   color: var(--color-primary-contrast);
+
+  &:hover:not(:disabled) {
+    background: var(--color-primary-dark);
+  }
 }
 
 .btn-outline {
@@ -128,15 +215,20 @@ p {
   border: 1px solid var(--color-border);
   color: var(--color-text);
 
-  &:hover {
+  &:hover:not(:disabled) {
     border-color: var(--color-primary);
+    color: var(--color-primary);
   }
 }
 
 .btn-danger {
-  background: rgba(239, 68, 68, 0.12);
+  background: rgba(226, 86, 74, 0.12);
   color: var(--color-danger);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  border: 1px solid rgba(226, 86, 74, 0.35);
+
+  &:hover:not(:disabled) {
+    background: rgba(226, 86, 74, 0.2);
+  }
 }
 
 .btn-sm {
@@ -157,9 +249,11 @@ p {
 }
 
 .field label {
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   color: var(--color-text-dim);
-  font-weight: 600;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .field input,
@@ -173,10 +267,15 @@ p {
   font-size: 0.95rem;
   font-family: inherit;
   outline: none;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
   &:focus {
     border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(242, 147, 74, 0.18);
+  }
+
+  &::placeholder {
+    color: var(--color-text-faint);
   }
 }
 
@@ -195,27 +294,94 @@ p {
   }
 }
 
-// ===== Badges =====
+// ===== Badges — tarjeta arbitral =====
+// Forma de tarjeta (portrait, esquinas redondeadas) en vez de píldora
+// genérica: encodea directamente el estado de una reserva como el
+// veredicto de un árbitro.
 .badge {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px 4px 6px;
+  border-radius: 6px;
   font-size: 0.72rem;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.03em;
   text-transform: uppercase;
+
+  &::before {
+    content: '';
+    width: 9px;
+    height: 12px;
+    border-radius: 2px;
+    display: inline-block;
+  }
 }
 
-.badge-pending { background: rgba(245, 158, 11, 0.15); color: var(--color-warning); }
-.badge-confirmed { background: rgba(59, 130, 246, 0.15); color: var(--color-info); }
-.badge-cancelled { background: rgba(239, 68, 68, 0.15); color: var(--color-danger); }
-.badge-completed { background: rgba(34, 197, 94, 0.15); color: var(--color-primary); }
+.badge-pending {
+  background: rgba(232, 201, 59, 0.14);
+  color: var(--color-warning);
+  &::before { background: var(--color-warning); }
+}
+
+.badge-confirmed {
+  background: rgba(91, 155, 213, 0.14);
+  color: var(--color-info);
+  &::before { background: var(--color-info); }
+}
+
+.badge-cancelled {
+  background: rgba(226, 86, 74, 0.14);
+  color: var(--color-danger);
+  &::before { background: var(--color-danger); }
+}
+
+.badge-completed {
+  background: rgba(76, 175, 109, 0.14);
+  color: var(--color-success);
+  &::before { background: var(--color-success); }
+}
 
 // ===== Empty state =====
 .empty-state {
   text-align: center;
   padding: var(--space-6) var(--space-4);
   color: var(--color-text-dim);
+
+  .empty-icon {
+    width: 44px;
+    height: 44px;
+    margin: 0 auto var(--space-3);
+    color: var(--color-text-faint);
+  }
+
+  p {
+    margin-bottom: var(--space-3);
+  }
+}
+
+// ===== Skeleton loaders =====
+.skeleton {
+  background: linear-gradient(
+    100deg,
+    var(--color-surface-2) 30%,
+    var(--color-border) 50%,
+    var(--color-surface-2) 70%
+  );
+  background-size: 200% 100%;
+  border-radius: var(--radius-sm);
+  animation: skeleton-sheen 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-sheen {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
 }
 
 // ===== Scrollbar =====

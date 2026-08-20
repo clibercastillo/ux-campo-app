@@ -4,11 +4,12 @@ import { Router, RouterLink } from '@angular/router';
 import { StadiumService } from '../../../core/services/stadium.service';
 import { Stadium } from '../../../core/models/stadium.model';
 import { ToastService } from '../../../core/services/toast.service';
+import { Skeleton } from '../../../shared/components/skeleton/skeleton';
 
 @Component({
   selector: 'app-stadium-list',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, Skeleton],
   templateUrl: './stadium-list.html',
   styleUrl: './stadium-list.scss',
 })

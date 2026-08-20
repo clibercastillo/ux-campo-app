@@ -3,17 +3,20 @@ import { RouterLink } from '@angular/router';
 import { BookingService } from '../../../core/services/booking.service';
 import { Booking } from '../../../core/models/booking.model';
 import { ToastService } from '../../../core/services/toast.service';
+import { ConfirmService } from '../../../core/services/confirm.service';
+import { Skeleton } from '../../../shared/components/skeleton/skeleton';
 
 @Component({
   selector: 'app-booking-list',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, Skeleton],
   templateUrl: './booking-list.html',
   styleUrl: './booking-list.scss',
 })
 export class BookingList {
   private bookingService = inject(BookingService);
   private toast = inject(ToastService);
+  private confirmService = inject(ConfirmService);
 
   bookings = signal<Booking[]>([]);
   loading = signal(true);
@@ -46,7 +49,15 @@ export class BookingList {
     });
   }
 
-  cancel(b: Booking): void {
+  async cancel(b: Booking): Promise<void> {
+    const ok = await this.confirmService.ask({
+      title: 'Cancelar reserva',
+      message: `¿Seguro que quieres cancelar la reserva #${b.id}? Esta acción no se puede deshacer.`,
+      confirmLabel: 'Sí, cancelar',
+      danger: true,
+    });
+    if (!ok) return;
+
     this.actionLoadingId.set(b.id);
     this.bookingService.cancel(b.id).subscribe({
       next: () => {

@@ -6,6 +6,7 @@
     </div>
     <a routerLink="/bookings" class="btn btn-outline" style="text-decoration:none">Volver</a>
   </div>
+  <div class="halfway-line"></div>
 
   @if (loadingStadiums()) {
     <div class="empty-state">Cargando canchas...</div>
@@ -38,9 +39,9 @@
       </div>
 
       @if (selectedStadium()) {
-        <div class="summary card">
+        <div class="summary">
           <span>Total estimado</span>
-          <strong>S/ {{ estimatedTotal() }}</strong>
+          <strong class="scoreline">S/ {{ estimatedTotal() }}</strong>
         </div>
       }
 

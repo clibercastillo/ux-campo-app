@@ -11,8 +11,15 @@
 }
 
 .notif-icon {
-  font-size: 1.4rem;
-  line-height: 1;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  border-radius: 50%;
+  background: rgba(242, 147, 74, 0.14);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .notif-body p {

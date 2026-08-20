@@ -2,11 +2,12 @@ import { Component, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { NotificationService } from '../../core/services/notification.service';
 import { AppNotification } from '../../core/models/notification.model';
+import { Skeleton } from '../../shared/components/skeleton/skeleton';
 
 @Component({
   selector: 'app-notification-list',
   standalone: true,
-  imports: [DatePipe],
+  imports: [DatePipe, Skeleton],
   templateUrl: './notification-list.html',
   styleUrl: './notification-list.scss',
 })

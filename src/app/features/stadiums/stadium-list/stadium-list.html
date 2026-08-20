@@ -8,6 +8,7 @@
       + Nueva cancha
     </a>
   </div>
+  <div class="halfway-line"></div>
 
   <div class="search-bar card">
     <input
@@ -21,10 +22,24 @@
   </div>
 
   @if (loading()) {
-    <div class="empty-state">Cargando canchas...</div>
+    <div class="grid">
+      @for (i of [1,2,3]; track i) {
+        <div class="card stadium-card">
+          <app-skeleton height="20px" width="70%"></app-skeleton>
+          <app-skeleton height="14px" width="90%"></app-skeleton>
+          <app-skeleton height="14px" width="50%"></app-skeleton>
+          <app-skeleton height="38px" radius="8px"></app-skeleton>
+        </div>
+      }
+    </div>
   } @else if (stadiums().length === 0) {
     <div class="empty-state">
-      <p>No se encontraron canchas.</p>
+      <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M12 3v3m0 12v3m9-9h-3M6 12H3"/>
+      </svg>
+      <p>No se encontraron canchas con ese filtro.</p>
+      <button class="btn btn-outline" (click)="cityFilter.set(''); load()">Ver todas las canchas</button>
     </div>
   } @else {
     <div class="grid">
@@ -32,7 +47,7 @@
         <div class="card stadium-card">
           <div class="stadium-top">
             <h3>{{ s.name }}</h3>
-            <span class="price">S/ {{ s.pricePerHour }}<small>/h</small></span>
+            <span class="price scoreline">S/ {{ s.pricePerHour }}<small>/h</small></span>
           </div>
           <p class="stadium-address">{{ s.address }}, {{ s.city }}</p>
           <div class="stadium-meta">

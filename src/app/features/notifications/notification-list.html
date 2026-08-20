@@ -5,18 +5,34 @@
       <p>Historial de avisos sobre tus reservas</p>
     </div>
   </div>
+  <div class="halfway-line"></div>
 
   @if (loading()) {
-    <div class="empty-state">Cargando notificaciones...</div>
+    <div class="notif-list">
+      @for (i of [1,2,3]; track i) {
+        <div class="card notif-item">
+          <app-skeleton width="28px" height="28px" radius="50%"></app-skeleton>
+          <div style="flex:1; display:flex; flex-direction:column; gap:6px;">
+            <app-skeleton height="14px" width="80%"></app-skeleton>
+            <app-skeleton height="12px" width="40%"></app-skeleton>
+          </div>
+        </div>
+      }
+    </div>
   } @else if (notifications().length === 0) {
     <div class="empty-state">
+      <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M12 22a2 2 0 0 0 2-2h-4a2 2 0 0 0 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4a1.5 1.5 0 0 0-3 0v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1z"/>
+      </svg>
       <p>No tienes notificaciones todavía.</p>
     </div>
   } @else {
     <div class="notif-list">
       @for (n of notifications(); track n.id) {
         <div class="card notif-item">
-          <div class="notif-icon">🔔</div>
+          <div class="notif-icon">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 22a2 2 0 0 0 2-2h-4a2 2 0 0 0 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4a1.5 1.5 0 0 0-3 0v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1z"/></svg>
+          </div>
           <div class="notif-body">
             <p>{{ n.message }}</p>
             <span class="notif-meta">{{ n.channel }} · {{ n.createdAt | date:'short' }}</span>

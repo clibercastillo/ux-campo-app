@@ -18,6 +18,10 @@
     &:focus {
       border-color: var(--color-primary);
     }
+
+    &::placeholder {
+      color: var(--color-text-faint);
+    }
   }
 }
 
@@ -36,19 +40,22 @@
   h3 {
     margin: 0;
     font-size: 1.05rem;
+    text-transform: none;
+    letter-spacing: normal;
   }
 }
 
 .price {
   color: var(--color-primary);
-  font-weight: 800;
+  font-weight: 700;
   font-size: 1.05rem;
   white-space: nowrap;
 
   small {
     color: var(--color-text-dim);
-    font-weight: 500;
+    font-weight: 400;
     font-size: 0.7rem;
+    font-family: var(--font-sans);
   }
 }
 
