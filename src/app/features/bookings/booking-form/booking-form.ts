@@ -22,10 +22,18 @@ interface Slot {
   status: 'available' | 'occupied' | 'selected' | 'past';
 }
 
+interface MockReview {
+  name: string;
+  initial: string;
+  stars: number;
+  date: string;
+  comment: string;
+}
+
 const OPEN_HOUR = 7;
 const CLOSE_HOUR = 23;
 const SLOT_MINUTES = 30;
-const MAX_SLOTS = 6; // 3h máximo, como CanchasGO
+const MAX_SLOTS = 6; // 3h máximo
 
 @Component({
   selector: 'app-booking-form',
@@ -51,6 +59,24 @@ export class BookingForm {
   slots = signal<Slot[]>([]);
   selectedRange = signal<{ startIdx: number; endIdx: number } | null>(null);
 
+  // Placeholder: número de WhatsApp de ejemplo. Reemplázalo por el
+  // teléfono real del dueño cuando agregues ese campo al modelo Stadium.
+  private demoWhatsapp = '51999999999';
+
+  // Placeholder: reseñas mock. Reemplaza por una llamada real a tu
+  // futuro ms-reviews (o al servicio que uses para calificaciones).
+  mockReviews: MockReview[] = [
+    {
+      name: 'Alonso Ríos',
+      initial: 'A',
+      stars: 5,
+      date: '30 de julio de 2026',
+      comment: 'Cancha en buen estado, fácil de reservar y llegar.',
+    },
+  ];
+
+  galleryPlaceholders = [1, 2, 3, 4];
+
   selectedCount = computed(() => {
     const r = this.selectedRange();
     return r ? r.endIdx - r.startIdx + 1 : 0;
@@ -68,6 +94,30 @@ export class BookingForm {
     if (!r || !slots.length) return null;
     return `${slots[r.startIdx].start} - ${slots[r.endIdx].end}`;
   });
+
+  whatsappLink = computed(() => {
+    const s = this.stadium();
+    const text = encodeURIComponent(
+      `Hola, quiero consultar sobre la cancha ${s?.name ?? ''} para el ${this.selectedDayIso()}`
+    );
+    return `https://wa.me/${this.demoWhatsapp}?text=${text}`;
+  });
+
+  mapsUrl = computed(() => {
+    const s = this.stadium();
+    if (!s) return '';
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${s.address}, ${s.city}`)}`;
+  });
+
+  averageRating = computed(() => {
+    if (!this.mockReviews.length) return 0;
+    const sum = this.mockReviews.reduce((acc, r) => acc + r.stars, 0);
+    return Math.round((sum / this.mockReviews.length) * 10) / 10;
+  });
+
+  stars(n: number): number[] {
+    return Array(n).fill(0);
+  }
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.queryParamMap.get('stadiumId'));
