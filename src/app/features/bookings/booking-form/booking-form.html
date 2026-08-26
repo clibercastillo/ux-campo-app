@@ -1,52 +1,118 @@
-<div class="page page-narrow">
-  <div class="page-header">
-    <div>
-      <h2>Nueva reserva</h2>
-      <p>Elige cancha, fecha y horario</p>
+<div class="page detail-page">
+  <a routerLink="/stadiums" class="back-link">← Volver a canchas</a>
+
+  @if (loadingStadium()) {
+    <div class="empty-state">Cargando cancha...</div>
+  } @else if (stadium(); as s) {
+    <div class="hero card">
+      <div class="hero-tags">
+        <span class="tag tag-accent">{{ s.fieldType }}</span>
+        <span class="tag">{{ s.capacity }} personas</span>
+      </div>
+      <h1>{{ s.name }}</h1>
+      <p class="hero-address">{{ s.city }} · {{ s.address }}</p>
+      <div class="hero-price">
+        S/ {{ s.pricePerHour / 2 | number:'1.0-2' }}
+        <small>/30min desde</small>
+      </div>
     </div>
-    <a routerLink="/bookings" class="btn btn-outline" style="text-decoration:none">Volver</a>
-  </div>
 
-  @if (loadingStadiums()) {
-    <div class="empty-state">Cargando canchas...</div>
-  } @else {
-    <form [formGroup]="form" (ngSubmit)="submit()" class="card">
-      <div class="field">
-        <label>Cancha</label>
-        <select formControlName="stadiumId" (change)="onStadiumChange()">
-          <option [value]="0" disabled>Selecciona una cancha</option>
-          @for (s of stadiums(); track s.id) {
-            <option [value]="s.id">{{ s.name }} — {{ s.city }} (S/ {{ s.pricePerHour }}/h)</option>
+    <div class="detail-grid">
+      <div class="detail-main">
+        <div class="card">
+          <h3>Detalles de la cancha</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Formato</span>
+              <strong>{{ s.fieldType }}</strong>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Capacidad</span>
+              <strong>{{ s.capacity }} personas</strong>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Precio / hora</span>
+              <strong>S/ {{ s.pricePerHour }}</strong>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Ciudad</span>
+              <strong>{{ s.city }}</strong>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Dirección</span>
+              <strong>{{ s.address }}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>¿Un problema con tu reserva?</h3>
+          <p>Contacta directamente al dueño de la cancha</p>
+          <a class="btn btn-outline" href="mailto:{{ s.ownerEmail }}">✉ {{ s.ownerEmail }}</a>
+        </div>
+      </div>
+
+      <div class="detail-side">
+        <div class="card booking-panel">
+          <h3>📅 Reservar horario</h3>
+
+          <div class="day-tabs">
+            @for (d of days(); track d.iso) {
+              <button
+                type="button"
+                class="day-tab"
+                [class.active]="selectedDayIso() === d.iso"
+                (click)="selectDay(d.iso)"
+              >
+                <span class="day-label">{{ d.dayLabel }}</span>
+                <span class="day-num">{{ d.dayNum }}</span>
+                <span class="day-month">{{ d.month }}</span>
+              </button>
+            }
+          </div>
+
+          <p class="slot-hint">Toca slots seguidos para reservar más tiempo · máximo 3h</p>
+
+          <div class="slot-grid">
+            @for (slot of slots(); track slot.start; let i = $index) {
+              <button
+                type="button"
+                class="slot"
+                [class.slot-selected]="isSelected(i)"
+                [class.slot-occupied]="slot.status === 'occupied'"
+                [class.slot-past]="slot.status === 'past'"
+                [disabled]="slot.status === 'occupied' || slot.status === 'past'"
+                (click)="onSlotClick(i)"
+              >
+                <span>{{ slot.start }}</span>
+                <small>S/ {{ slot.price }}</small>
+              </button>
+            }
+          </div>
+
+          <div class="slot-legend">
+            <span><i class="dot dot-occupied"></i> Ocupado</span>
+            <span><i class="dot dot-free"></i> Libre</span>
+            <span><i class="dot dot-selected"></i> Elegido</span>
+          </div>
+
+          @if (selectedRange()) {
+            <div class="summary card">
+              <span>{{ selectedRangeLabel() }}</span>
+              <strong>S/ {{ estimatedTotal() }}</strong>
+            </div>
           }
-        </select>
-      </div>
 
-      <div class="field">
-        <label>Fecha</label>
-        <input type="date" formControlName="bookingDate" />
-      </div>
-
-      <div class="field-row">
-        <div class="field">
-          <label>Hora inicio</label>
-          <input type="time" formControlName="startTime" (change)="onStadiumChange()" />
-        </div>
-        <div class="field">
-          <label>Hora fin</label>
-          <input type="time" formControlName="endTime" (change)="onStadiumChange()" />
+          <button
+            type="button"
+            class="btn btn-primary btn-block"
+            [disabled]="!selectedRange() || loading()"
+            (click)="confirm()"
+          >
+            {{ loading() ? 'Reservando...' : (selectedRange() ? 'Confirmar reserva' : 'Selecciona un horario') }}
+          </button>
         </div>
       </div>
-
-      @if (selectedStadium()) {
-        <div class="summary card">
-          <span>Total estimado</span>
-          <strong>S/ {{ estimatedTotal() }}</strong>
-        </div>
-      }
-
-      <button type="submit" class="btn btn-primary btn-block" [disabled]="loading()">
-        {{ loading() ? 'Reservando...' : 'Confirmar reserva' }}
-      </button>
-    </form>
+    </div>
   }
 </div>

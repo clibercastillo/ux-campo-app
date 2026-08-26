@@ -1,20 +1,40 @@
-import { Component, inject, signal } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { Component, computed, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { catchError, of } from 'rxjs';
 import { BookingService } from '../../../core/services/booking.service';
 import { StadiumService } from '../../../core/services/stadium.service';
 import { Stadium } from '../../../core/models/stadium.model';
+import { Booking } from '../../../core/models/booking.model';
 import { ToastService } from '../../../core/services/toast.service';
+
+interface DayOption {
+  iso: string;
+  dayLabel: string;
+  dayNum: string;
+  month: string;
+}
+
+interface Slot {
+  start: string;
+  end: string;
+  price: number;
+  status: 'available' | 'occupied' | 'selected' | 'past';
+}
+
+const OPEN_HOUR = 7;
+const CLOSE_HOUR = 23;
+const SLOT_MINUTES = 30;
+const MAX_SLOTS = 6; // 3h máximo, como CanchasGO
 
 @Component({
   selector: 'app-booking-form',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, RouterLink],
   templateUrl: './booking-form.html',
   styleUrl: './booking-form.scss',
 })
 export class BookingForm {
-  private fb = inject(FormBuilder);
   private bookingService = inject(BookingService);
   private stadiumService = inject(StadiumService);
   private route = inject(ActivatedRoute);
@@ -22,63 +42,181 @@ export class BookingForm {
   private toast = inject(ToastService);
 
   loading = signal(false);
-  loadingStadiums = signal(true);
-  stadiums = signal<Stadium[]>([]);
-  selectedStadium = signal<Stadium | null>(null);
+  loadingStadium = signal(true);
+  stadium = signal<Stadium | null>(null);
 
-  form = this.fb.nonNullable.group({
-    stadiumId: [0, [Validators.required, Validators.min(1)]],
-    bookingDate: ['', Validators.required],
-    startTime: ['', Validators.required],
-    endTime: ['', Validators.required],
+  days = signal<DayOption[]>(this.buildDays());
+  selectedDayIso = signal<string>(this.days()[0].iso);
+
+  slots = signal<Slot[]>([]);
+  selectedRange = signal<{ startIdx: number; endIdx: number } | null>(null);
+
+  selectedCount = computed(() => {
+    const r = this.selectedRange();
+    return r ? r.endIdx - r.startIdx + 1 : 0;
+  });
+
+  estimatedTotal = computed(() => {
+    const stadium = this.stadium();
+    if (!stadium) return 0;
+    return Math.round(this.selectedCount() * (stadium.pricePerHour / 2) * 100) / 100;
+  });
+
+  selectedRangeLabel = computed(() => {
+    const r = this.selectedRange();
+    const slots = this.slots();
+    if (!r || !slots.length) return null;
+    return `${slots[r.startIdx].start} - ${slots[r.endIdx].end}`;
   });
 
   ngOnInit(): void {
-    this.stadiumService.findAll().subscribe({
-      next: (data) => {
-        this.stadiums.set(data);
-        this.loadingStadiums.set(false);
-
-        const preselected = Number(this.route.snapshot.queryParamMap.get('stadiumId'));
-        if (preselected) {
-          this.form.controls.stadiumId.setValue(preselected);
-          this.onStadiumChange();
-        }
-      },
-      error: () => this.loadingStadiums.set(false),
-    });
-  }
-
-  onStadiumChange(): void {
-    const id = this.form.controls.stadiumId.value;
-    const found = this.stadiums().find((s) => s.id === Number(id)) ?? null;
-    this.selectedStadium.set(found);
-  }
-
-  estimatedTotal(): number {
-    const stadium = this.selectedStadium();
-    const { startTime, endTime } = this.form.getRawValue();
-    if (!stadium || !startTime || !endTime) return 0;
-
-    const [sh, sm] = startTime.split(':').map(Number);
-    const [eh, em] = endTime.split(':').map(Number);
-    const hours = (eh * 60 + em - (sh * 60 + sm)) / 60;
-    return hours > 0 ? Math.round(hours * stadium.pricePerHour * 100) / 100 : 0;
-  }
-
-  submit(): void {
-    if (this.form.invalid || this.form.controls.stadiumId.value === 0) {
-      this.form.markAllAsTouched();
-      this.toast.error('Selecciona una cancha válida');
+    const id = Number(this.route.snapshot.queryParamMap.get('stadiumId'));
+    if (!id) {
+      this.toast.error('Selecciona una cancha desde el listado');
+      this.router.navigate(['/stadiums']);
       return;
     }
 
-    const raw = this.form.getRawValue();
+    this.stadiumService.findById(id).subscribe({
+      next: (data) => {
+        this.stadium.set(data);
+        this.loadingStadium.set(false);
+        this.loadSlotsForDay();
+      },
+      error: () => {
+        this.loadingStadium.set(false);
+        this.toast.error('No se pudo cargar la cancha');
+      },
+    });
+  }
+
+  private buildDays(): DayOption[] {
+    const labels = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'];
+    const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    const out: DayOption[] = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date();
+      d.setDate(d.getDate() + i);
+      out.push({
+        iso: d.toISOString().slice(0, 10),
+        dayLabel: i === 0 ? 'HOY' : i === 1 ? 'MAÑ' : labels[d.getDay()],
+        dayNum: String(d.getDate()).padStart(2, '0'),
+        month: months[d.getMonth()],
+      });
+    }
+    return out;
+  }
+
+  selectDay(iso: string): void {
+    this.selectedDayIso.set(iso);
+    this.selectedRange.set(null);
+    this.loadSlotsForDay();
+  }
+
+  private loadSlotsForDay(): void {
+    const stadium = this.stadium();
+    if (!stadium) return;
+
+    const base: Slot[] = [];
+    const pricePerSlot = Math.round((stadium.pricePerHour / 2) * 100) / 100;
+
+    for (let h = OPEN_HOUR; h < CLOSE_HOUR; h++) {
+      for (const m of [0, 30]) {
+        const start = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+        const endMinutes = h * 60 + m + SLOT_MINUTES;
+        const end = `${String(Math.floor(endMinutes / 60)).padStart(2, '0')}:${String(endMinutes % 60).padStart(2, '0')}`;
+        base.push({ start, end, price: pricePerSlot, status: 'available' });
+      }
+    }
+
+    const isToday = this.selectedDayIso() === this.days()[0].iso;
+    if (isToday) {
+      const nowMinutes = new Date().getHours() * 60 + new Date().getMinutes();
+      for (const slot of base) {
+        const [h, m] = slot.start.split(':').map(Number);
+        if (h * 60 + m <= nowMinutes) slot.status = 'past';
+      }
+    }
+
+    this.slots.set(base);
+
+    this.bookingService
+      .findByStadiumAndDate(stadium.id, this.selectedDayIso())
+      .pipe(catchError(() => of([] as Booking[])))
+      .subscribe((bookings) => this.markOccupied(bookings));
+  }
+
+  private markOccupied(bookings: Booking[]): void {
+    const active = bookings.filter((b) => b.status !== 'CANCELLED');
+    this.slots.update((slots) =>
+      slots.map((slot) => {
+        if (slot.status === 'past') return slot;
+        const overlaps = active.some(
+          (b) => slot.start < b.endTime.slice(0, 5) && slot.end > b.startTime.slice(0, 5)
+        );
+        return overlaps ? { ...slot, status: 'occupied' } : slot;
+      })
+    );
+  }
+
+  onSlotClick(idx: number): void {
+    const slot = this.slots()[idx];
+    if (slot.status === 'occupied' || slot.status === 'past') return;
+
+    const current = this.selectedRange();
+
+    if (!current) {
+      this.selectedRange.set({ startIdx: idx, endIdx: idx });
+      return;
+    }
+
+    if (idx === current.startIdx && current.startIdx === current.endIdx) {
+      this.selectedRange.set(null);
+      return;
+    }
+
+    if (idx === current.endIdx + 1) {
+      const span = idx - current.startIdx + 1;
+      if (span > MAX_SLOTS) {
+        this.toast.error('Máximo 3 horas por reserva');
+        return;
+      }
+      if (this.hasBlockedBetween(current.startIdx, idx)) {
+        this.toast.error('Hay un horario ocupado en el medio');
+        return;
+      }
+      this.selectedRange.set({ startIdx: current.startIdx, endIdx: idx });
+      return;
+    }
+
+    this.selectedRange.set({ startIdx: idx, endIdx: idx });
+  }
+
+  private hasBlockedBetween(start: number, end: number): boolean {
+    return this.slots()
+      .slice(start, end + 1)
+      .some((s) => s.status === 'occupied' || s.status === 'past');
+  }
+
+  isSelected(idx: number): boolean {
+    const r = this.selectedRange();
+    return !!r && idx >= r.startIdx && idx <= r.endIdx;
+  }
+
+  confirm(): void {
+    const stadium = this.stadium();
+    const range = this.selectedRange();
+    if (!stadium || !range) {
+      this.toast.error('Selecciona un horario');
+      return;
+    }
+
+    const slots = this.slots();
     const payload = {
-      stadiumId: Number(raw.stadiumId),
-      bookingDate: raw.bookingDate,
-      startTime: `${raw.startTime}:00`,
-      endTime: `${raw.endTime}:00`,
+      stadiumId: stadium.id,
+      bookingDate: this.selectedDayIso(),
+      startTime: `${slots[range.startIdx].start}:00`,
+      endTime: `${slots[range.endIdx].end}:00`,
     };
 
     this.loading.set(true);
