@@ -2,16 +2,21 @@
   position: sticky;
   top: 0;
   z-index: 20;
-  display: flex;
-  align-items: center;
-  gap: var(--space-5);
-  padding: 14px 24px;
   background: rgba(250, 247, 242, 0.88);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--color-border);
+}
+
+.topbar-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  max-width: 1080px;        // ← igual que .hero-top / .hero-overlay
+  margin: 0 auto;
+  padding: 14px var(--space-4);  // ← mismo padding horizontal que el hero
 
   @media (max-width: 720px) {
-    padding: 12px 16px;
+    padding: 12px var(--space-4);
   }
 }
 

@@ -67,7 +67,7 @@ export class BookingForm {
   // futuro ms-reviews (o al servicio que uses para calificaciones).
   mockReviews: MockReview[] = [
     {
-      name: 'Alonso Ríos',
+      name: 'Cliber Castillo',
       initial: 'A',
       stars: 5,
       date: '30 de julio de 2026',
@@ -120,12 +120,8 @@ export class BookingForm {
   }
 
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.queryParamMap.get('stadiumId'));
-    if (!id) {
-      this.toast.error('Selecciona una cancha desde el listado');
-      this.router.navigate(['/stadiums']);
-      return;
-    }
+    const idParam = this.route.snapshot.queryParamMap.get('stadiumId');
+    const id = idParam ? Number(idParam) : 1;  // ← default a 1 si no viene en la URL
 
     this.stadiumService.findById(id).subscribe({
       next: (data) => {
@@ -139,7 +135,6 @@ export class BookingForm {
       },
     });
   }
-
   private buildDays(): DayOption[] {
     const labels = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'];
     const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];

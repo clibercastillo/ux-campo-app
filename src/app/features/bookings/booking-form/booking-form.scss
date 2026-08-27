@@ -33,11 +33,6 @@
 
   &:hover { color: #fff; }
 }
-.field-art {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-}
 
 .field-stripe {
   position: absolute;
@@ -79,21 +74,6 @@
   left: 50%;
   width: 3px;
   background: rgba(255, 255, 255, 0.75);
-}
-
-.hero-overlay {
-  position: relative;
-  z-index: 2;
-  margin-top: auto;   // 👈 nueva línea: empuja el bloque hacia abajo
-  width: 100%;
-  max-width: 1080px;
-  margin-left: auto;
-  margin-right: auto;
-  padding: var(--space-5) var(--space-4);
-  background: linear-gradient(0deg, rgba(0, 0, 0, 0.55) 10%, rgba(0, 0, 0, 0) 90%);
-  color: #fff;
-
-  h1 { color: #fff; margin-bottom: 4px; }
 }
 
 .hero-tags {
@@ -432,4 +412,36 @@
   text-align: center;
   font-size: 0.75rem;
   margin: var(--space-3) 0 0;
+}
+
+
+.hero-overlay {
+  position: relative;
+  z-index: 2;
+  margin-top: auto;
+  width: 100%;
+  padding: 0;                 // ← quita el padding de acá
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0) 100%);
+  color: #fff;
+}
+
+.hero-overlay-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-4);
+
+  h1 { color: #fff; margin-bottom: 4px; }
+}
+
+.field-art {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.field-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 40%;  // ajusta el foco vertical de tu foto
 }

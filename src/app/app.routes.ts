@@ -5,7 +5,9 @@ export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: () => '/bookings/new?stadiumId=1',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/bookings/booking-form/booking-form').then((m) => m.BookingForm),
   },
 
   {
@@ -51,9 +53,5 @@ export const routes: Routes = [
       import('./features/notifications/notification-list').then((m) => m.NotificationList),
   },
 
-  {
-    path: '**',
-    pathMatch: 'full',
-    redirectTo: () => '/bookings/new?stadiumId=1',
-  },
+  { path: '**', redirectTo: '' },
 ];
