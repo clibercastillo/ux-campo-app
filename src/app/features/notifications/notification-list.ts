@@ -19,9 +19,12 @@ export class NotificationList {
   ngOnInit(): void {
     this.notificationService.findMine().subscribe({
       next: (data) => {
-        this.notifications.set(
-          data.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        const sorted = data.sort(
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
+        this.notifications.set(sorted);
+        this.notificationService.setNotifications(sorted);
+        this.notificationService.markAllRead(); // ← borra el badge del navbar
         this.loading.set(false);
       },
       error: () => this.loading.set(false),

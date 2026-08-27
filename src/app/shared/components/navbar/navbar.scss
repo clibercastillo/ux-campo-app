@@ -63,6 +63,30 @@
   }
 }
 
+.bell-link {
+  position: relative;
+  display: inline-flex !important;
+  align-items: center;
+  padding: 6px !important;
+}
+
+.bell-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--color-danger, #ef4444);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+  border: 2px solid var(--color-surface, #faf7f2);
+}
+
 .user {
   display: flex;
   align-items: center;
@@ -98,6 +122,7 @@
 
     a,
     button {
+      position: relative;
       flex: 1;
       display: flex;
       flex-direction: column;
@@ -116,4 +141,22 @@
       }
     }
   }
+}
+
+.bell-badge-bottom {
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  transform: translateX(2px);
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
+  border-radius: 999px;
+  background: var(--color-danger, #ef4444);
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  line-height: 15px;
+  text-align: center;
+  border: 2px solid #fff;
 }
