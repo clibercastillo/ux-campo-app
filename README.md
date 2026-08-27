@@ -73,3 +73,4 @@ src/app/
 - Toasts de feedback para cada acción (éxito/error)
 - Componentes standalone, lazy-loaded por ruta, signals para estado reactivo
 # walon-app
+# walon-app
