@@ -2,7 +2,11 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'stadiums' },
+  {
+    path: '',
+    pathMatch: 'full',
+    redirectTo: () => '/bookings/new?stadiumId=1',
+  },
 
   {
     path: 'login',
@@ -47,5 +51,9 @@ export const routes: Routes = [
       import('./features/notifications/notification-list').then((m) => m.NotificationList),
   },
 
-  { path: '**', redirectTo: 'stadiums' },
+  {
+    path: '**',
+    pathMatch: 'full',
+    redirectTo: () => '/bookings/new?stadiumId=1',
+  },
 ];
